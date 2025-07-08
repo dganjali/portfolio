@@ -20,19 +20,20 @@ function classNames(...classes) {
 function Typewriter({ text, speed = 30 }) {
   const [displayed, setDisplayed] = useState('');
   const [mounted, setMounted] = useState(false);
-  const i = useRef(0);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
   useEffect(() => {
     if (!mounted) return;
     setDisplayed('');
-    i.current = 0;
+    let i = 0;
     function tick() {
-      if (i.current < text.length) {
-        setDisplayed((prev) => prev + text[i.current]);
-        i.current++;
-        if (i.current < text.length) {
+      if (i < text.length) {
+        setDisplayed((prev) => prev + text[i]);
+        i++;
+        if (i < text.length) {
           setTimeout(tick, speed);
         }
       }
@@ -40,16 +41,22 @@ function Typewriter({ text, speed = 30 }) {
     if (text.length > 0) {
       setTimeout(tick, speed);
     }
-    // eslint-disable-next-line
-  }, [text, mounted]);
-  if (!mounted) return <span>{text}</span>; // On server, render full text
+    // Cleanup in case the component unmounts
+    return () => { i = text.length; };
+  }, [text, mounted, speed]);
+
+  if (!mounted) return <span>{text}</span>;
   return <span>{displayed}</span>;
 }
 
 function StarsBackground({ count = 60 }) {
   const [stars, setStars] = useState([]);
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    // Generate random star positions and animation delays
+    setMounted(true);
+  }, []);
+  useEffect(() => {
+    if (!mounted) return;
     setStars(
       Array.from({ length: count }, (_, i) => ({
         id: i,
@@ -60,7 +67,8 @@ function StarsBackground({ count = 60 }) {
         duration: Math.random() * 2 + 1.5, // seconds
       }))
     );
-  }, [count]);
+  }, [count, mounted]);
+  if (!mounted) return null;
   return (
     <div className="fixed inset-0 -z-20 pointer-events-none">
       {stars.map(star => (
@@ -175,7 +183,7 @@ export default function Home() {
             <Tab.Panel>
               <div className="py-8 px-2 animate-fadein">
                 <h2 className="text-2xl font-bold mb-2">About Me</h2>
-                <p className="mb-4 text-lg text-gray-700 dark:text-gray-200"><Typewriter text={"Hii, I'm Daniel Ganjali! I'm a Grade 10 student at the University of Toronto Schools (UTS), passionate about robotics, artificial intelligence, and social-impact-driven engineering. I enjoy building technically impressive projects that combine software and hardware to solve real-world challenges. I lead one of Ontario's top robotics teams, build applied AI systems, and contribute to my community."} speed={15} /></p>
+                <p className="mb-4 text-lg text-gray-700 dark:text-gray-200"><Typewriter text={"Hi, I'm Daniel Ganjali! I'm a Grade 10 student at the University of Toronto Schools (UTS), passionate about robotics, artificial intelligence, and social-impact-driven engineering. I enjoy building technically impressive projects that combine software and hardware to solve real-world challenges. I lead one of Ontario's top robotics teams, build applied AI systems, and contribute to my community."} speed={15} /></p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h3 className="font-semibold mb-1">Personal</h3>
