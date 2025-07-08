@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fadein {
+  animation: fadein 0.7s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes blob1 {
+  0%, 100% { transform: scale(1) translate(0,0); }
+  50% { transform: scale(1.1) translate(20px, 10px); }
+}
+.animate-blob1 {
+  animation: blob1 12s ease-in-out infinite;
+}
+@keyframes blob2 {
+  0%, 100% { transform: scale(1) translate(0,0); }
+  50% { transform: scale(1.08) translate(-10px, 20px); }
+}
+.animate-blob2 {
+  animation: blob2 14s ease-in-out infinite;
+}
+
+@keyframes slidein {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slidein {
+  animation: slidein 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.1; }
+}
+.animate-star-twinkle {
+  animation-name: star-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
