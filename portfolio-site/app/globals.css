@@ -69,10 +69,11 @@ body {
 
 @keyframes star-twinkle {
   0%, 100% { opacity: 0.8; }
-  50% { opacity: 0.1; }
+  50% { opacity: 0.5; }
 }
 .animate-star-twinkle {
   animation-name: star-twinkle;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
 }
+

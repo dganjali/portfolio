@@ -20,9 +20,11 @@ function classNames(...classes) {
 function Typewriter({ text, speed = 30 }) {
   const [displayed, setDisplayed] = useState('');
   const [mounted, setMounted] = useState(false);
+  const timeoutRef = useRef();
 
   useEffect(() => {
     setMounted(true);
+    return () => clearTimeout(timeoutRef.current);
   }, []);
 
   useEffect(() => {
@@ -30,45 +32,41 @@ function Typewriter({ text, speed = 30 }) {
     setDisplayed('');
     let i = 0;
     function tick() {
+      setDisplayed(text.slice(0, i + 1));
+      i++;
       if (i < text.length) {
-        setDisplayed((prev) => prev + text[i]);
-        i++;
-        if (i < text.length) {
-          setTimeout(tick, speed);
-        }
+        timeoutRef.current = setTimeout(tick, speed);
       }
     }
-    if (text.length > 0) {
-      setTimeout(tick, speed);
+    if (text && text.length > 0) {
+      timeoutRef.current = setTimeout(tick, speed);
     }
-    // Cleanup in case the component unmounts
-    return () => { i = text.length; };
+    return () => clearTimeout(timeoutRef.current);
   }, [text, mounted, speed]);
 
   if (!mounted) return <span>{text}</span>;
   return <span>{displayed}</span>;
 }
 
-function StarsBackground({ count = 60 }) {
+function StarsBackground({ count = 100 }) {
   const [stars, setStars] = useState([]);
-  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    setMounted(true);
+    // Only generate stars once on mount
+    if (stars.length === 0) {
+      setStars(
+        Array.from({ length: count }, (_, i) => ({
+          id: i,
+          top: Math.random() * 100, // percent
+          left: Math.random() * 100, // percent
+          size: Math.random() * 32 + 24, // px, make stars very large for visibility
+          delay: Math.random() * 4, // seconds
+          duration: Math.random() * 2 + 1.5, // seconds
+        }))
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (!mounted) return;
-    setStars(
-      Array.from({ length: count }, (_, i) => ({
-        id: i,
-        top: Math.random() * 100, // percent
-        left: Math.random() * 100, // percent
-        size: Math.random() * 2 + 1, // px
-        delay: Math.random() * 4, // seconds
-        duration: Math.random() * 2 + 1.5, // seconds
-      }))
-    );
-  }, [count, mounted]);
-  if (!mounted) return null;
+  if (stars.length === 0) return null;
   return (
     <div className="fixed inset-0 -z-20 pointer-events-none">
       {stars.map(star => (
@@ -130,7 +128,7 @@ function FloatingChatShell() {
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-white to-blue-50 dark:from-[#0a0a0a] dark:to-[#171717] overflow-x-hidden">
-      <StarsBackground />
+      <StarsBackground count={100} />
       <AnimatedBackground />
       <header className="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between py-10 px-6 gap-8">
         {/* Portrait Placeholder with floating animation */}
