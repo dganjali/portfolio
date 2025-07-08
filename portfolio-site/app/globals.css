@@ -68,8 +68,11 @@ body {
 .delay-300 { animation-delay: 0.3s; }
 
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 0.5; }
+  0% { opacity: 0; }
+  30% { opacity: 0.4; }
+  60% { opacity: 0.8; }
+  90% { opacity: 0.4; }
+  100% { opacity: 0; }
 }
 .animate-star-twinkle {
   animation-name: star-twinkle;
