@@ -3,7 +3,7 @@
 import { Tab } from '@headlessui/react';
 import Image from 'next/image';
 import { useEffect, useRef, useState, Fragment } from 'react';
-import { FaUser, FaProjectDiagram, FaMedal, FaUsers, FaEnvelope, FaRobot } from 'react-icons/fa';
+import { FaUser, FaProjectDiagram, FaMedal, FaUsers, FaEnvelope } from 'react-icons/fa';
 import axios from 'axios';
 
 const TABS = [
@@ -156,145 +156,9 @@ function AnimatedBackground() {
   );
 }
 
-function FloatingChatShell() {
-  const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
-    const systemMessage = {
-      role: 'system',
-      content: `You are Gemini, a chatbot that mimics Daniel Ganjali's personality, tone, and expertise. Here is detailed information about Daniel:
-
-Personal:
-- Age: 15
-- Location: North York, Toronto, Canada
-- School: University of Toronto Schools (UTS)
-- Graduation Year: 2027
-- GPA: 4.0 (Grade 9 & 10)
-
-Academic Honors:
-- Dean’s List, School Pin
-- Honor Roll in CCC Senior, CCC Junior, and Beaver
-- Top scorer in AMC, BCC
-
-Projects:
-1. TetherAI: Forecasts homeless shelter traffic using weather and historical data. Built with an LSTM model, FastAPI backend, and interactive dashboard for NGOs.
-2. Predictra: Lightweight KPI forecasting platform for small businesses. Recognized as Most Scalable Startup at SpurHacks 2025 and 2nd Best AI Startup at SpurHacks.
-3. ByteBite: ML-powered food bank inventory and spoilage tracker. Built with local food banks and won 3rd Place at a social-impact hackathon.
-4. PerfectPosture: Posture monitoring and correction system using pose estimation. Published at CAIAC 2025.
-5. COVID-19 Simulator: Simulates virus spread, mask use, and vaccine impact. Used in classrooms as an educational tool.
-
-Skills:
-- Languages: Python, Java, C++, JavaScript, HTML/CSS
-- Frameworks/Tools: TensorFlow, PyTorch, OpenCV, FastAPI, React, Arduino, ROS, Git
-- Topics: Machine Learning, Reinforcement Learning, NLP, Computer Vision, Simulation, Robotics, Edge AI
-
-Spoken Languages:
-- English (Fluent)
-- Persian (Fluent)
-- French (Elementary)
-- Mandarin (Elementary)
-
-Awards & Certifications:
-- Most Scalable Startup – SpurHacks (Predictra)
-- 2nd Best AI Startup – SpurHacks
-- 3rd Place Hackathon – ByteBite
-- DeepLearning.AI Specialization (Andrew Ng)
-- RCM Level 9 Piano – Completed 2025
-- UTS School Pin
-- CCC Senior Score: 50 (Top 70 in Canada)
-- CCC and Beaver Computing Challenge Honor Roll
-
-Leadership & Extracurriculars:
-- Captain, UTS Robotics Team (Ranked 5th in Ontario, Qualified for Worlds)
-- Volunteer, Food Banks (logistics and tech consulting)
-- Environmental Volunteer, YRES (30+ hours)
-- Competitive Swimmer and Certified Lifeguard (Bronze Cross, NLS, etc.)
-- Competitive Coder (CCC Honor Roll, CCO candidate)
-- Entrepreneurship: FBLA: 12th in Canada, Blue Ocean Competition: Finalist
-- Robotics Summer Camp Organizer and Instructor
-
-Contact Information:
-- GitHub: https://github.com/DanielGanjali
-- LinkedIn: [your LinkedIn]
-- Email: [your email]
-- Website: [your portfolio site]`
-    };
-
-    const userMessage = { role: 'user', content: input };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setLoading(true);
-
-    try {
-      const response = await axios.post('/api/chat', {
-        messages: [systemMessage, ...messages, userMessage],
-      });
-
-      const botMessage = response.data;
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <button
-        className="bg-blue-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700 transition-all animate-bounce"
-        onClick={() => setOpen((o) => !o)}
-        aria-label="Chat with me"
-      >
-        <FaRobot />
-      </button>
-      {open && (
-        <div className="mt-2 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-blue-200 dark:border-blue-900 p-4 animate-fadein flex flex-col">
-          <div className="flex items-center gap-2 mb-2">
-            <FaRobot className="text-blue-500" />
-            <span className="font-bold text-lg">Chat with Gemini</span>
-          </div>
-          <div className="flex-1 min-h-[120px] max-h-48 overflow-y-auto text-sm text-gray-700 dark:text-gray-200 mb-2 bg-gray-50 dark:bg-gray-800 rounded p-2">
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`mb-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
-                <span className={`inline-block px-3 py-2 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>{msg.content}</span>
-              </div>
-            ))}
-            {loading && (
-              <div className="text-gray-500 text-sm">Gemini is typing...</div>
-            )}
-          </div>
-          <form className="flex gap-2" onSubmit={sendMessage}>
-            <input
-              className="flex-1 rounded border px-2 py-1 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              placeholder="Ask me anything..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
-            <button
-              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-              type="submit"
-              disabled={loading}
-            >
-              Send
-            </button>
-          </form>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-white to-blue-50 dark:from-[#0a0a0a] dark:to-[#171717] overflow-x-hidden">
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-white to-blue-50 dark:from-[#0a0aa] dark:to-[#171717] overflow-x-hidden">
       <StarsBackground count={100} />
       <AnimatedBackground />
       <header className="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between py-10 px-6 gap-8">
@@ -313,10 +177,10 @@ export default function Home() {
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-1 animate-slidein delay-100">North York, Toronto, Canada</p>
           <p className="text-md text-gray-500 dark:text-gray-400 animate-slidein delay-200">Grade 10 @ University of Toronto Schools (UTS) | Class of 2027</p>
           <div className="flex gap-4 mt-3 animate-slidein delay-300">
-            <a href="https://github.com/DanielGanjali" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">GitHub</a>
-            <a href="#" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">LinkedIn</a>
-            <a href="#" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">Email</a>
-            <a href="#" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">Website</a>
+            <a href="https://github.com/dganjali" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">GitHub</a>
+            <a href="https://www.linkedin.com/in/daniel-ganjali-792bab30a/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">LinkedIn</a>
+            <a href="mailto:danielganjali09@gmail.com" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">Email</a>
+            <a href="https://danielganjali.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">Website</a>
           </div>
         </div>
       </header>
@@ -475,9 +339,9 @@ export default function Home() {
                 <h2 className="text-2xl font-bold mb-2">Contact</h2>
                 <div className="flex flex-col gap-2 text-gray-700 dark:text-gray-200">
                   <span><span className="font-semibold">GitHub:</span> <a href="https://github.com/DanielGanjali" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200" target="_blank" rel="noopener noreferrer">https://github.com/DanielGanjali</a></span>
-                  <span><span className="font-semibold">LinkedIn:</span> <a href="#" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">[your LinkedIn]</a></span>
-                  <span><span className="font-semibold">Email:</span> <a href="#" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">[your email]</a></span>
-                  <span><span className="font-semibold">Website:</span> <a href="#" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">[your portfolio site]</a></span>
+                  <span><span className="font-semibold">LinkedIn:</span> <a href="https://www.linkedin.com/in/daniel-ganjali-792bab30a/" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/daniel-ganjali-792bab30a/</a></span>
+                  <span><span className="font-semibold">Email:</span> <a href="mailto:danielganjali09@gmail.com" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">danielganjali09@gmail.com</a></span>
+                  <span><span className="font-semibold">Website:</span> <a href="https://danielganjali.com" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200" target="_blank" rel="noopener noreferrer">https://danielganjali.com</a></span>
                 </div>
               </div>
             </Tab.Panel>
@@ -485,7 +349,6 @@ export default function Home() {
         </Tab.Group>
       </main>
       <footer className="w-full text-center text-xs text-gray-400 py-4">&copy; {new Date().getFullYear()} Daniel Ganjali. All rights reserved.</footer>
-      <FloatingChatShell />
     </div>
   );
 }
