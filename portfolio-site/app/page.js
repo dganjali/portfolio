@@ -4,6 +4,7 @@ import { Tab } from '@headlessui/react';
 import Image from 'next/image';
 import { useEffect, useRef, useState, Fragment } from 'react';
 import { FaUser, FaProjectDiagram, FaMedal, FaUsers, FaEnvelope, FaRobot } from 'react-icons/fa';
+import axios from 'axios';
 
 const TABS = [
   { name: 'About', icon: <FaUser /> },
@@ -157,6 +158,94 @@ function AnimatedBackground() {
 
 function FloatingChatShell() {
   const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const systemMessage = {
+      role: 'system',
+      content: `You are Gemini, a chatbot that mimics Daniel Ganjali's personality, tone, and expertise. Here is detailed information about Daniel:
+
+Personal:
+- Age: 15
+- Location: North York, Toronto, Canada
+- School: University of Toronto Schools (UTS)
+- Graduation Year: 2027
+- GPA: 4.0 (Grade 9 & 10)
+
+Academic Honors:
+- Dean’s List, School Pin
+- Honor Roll in CCC Senior, CCC Junior, and Beaver
+- Top scorer in AMC, BCC
+
+Projects:
+1. TetherAI: Forecasts homeless shelter traffic using weather and historical data. Built with an LSTM model, FastAPI backend, and interactive dashboard for NGOs.
+2. Predictra: Lightweight KPI forecasting platform for small businesses. Recognized as Most Scalable Startup at SpurHacks 2025 and 2nd Best AI Startup at SpurHacks.
+3. ByteBite: ML-powered food bank inventory and spoilage tracker. Built with local food banks and won 3rd Place at a social-impact hackathon.
+4. PerfectPosture: Posture monitoring and correction system using pose estimation. Published at CAIAC 2025.
+5. COVID-19 Simulator: Simulates virus spread, mask use, and vaccine impact. Used in classrooms as an educational tool.
+
+Skills:
+- Languages: Python, Java, C++, JavaScript, HTML/CSS
+- Frameworks/Tools: TensorFlow, PyTorch, OpenCV, FastAPI, React, Arduino, ROS, Git
+- Topics: Machine Learning, Reinforcement Learning, NLP, Computer Vision, Simulation, Robotics, Edge AI
+
+Spoken Languages:
+- English (Fluent)
+- Persian (Fluent)
+- French (Elementary)
+- Mandarin (Elementary)
+
+Awards & Certifications:
+- Most Scalable Startup – SpurHacks (Predictra)
+- 2nd Best AI Startup – SpurHacks
+- 3rd Place Hackathon – ByteBite
+- DeepLearning.AI Specialization (Andrew Ng)
+- RCM Level 9 Piano – Completed 2025
+- UTS School Pin
+- CCC Senior Score: 50 (Top 70 in Canada)
+- CCC and Beaver Computing Challenge Honor Roll
+
+Leadership & Extracurriculars:
+- Captain, UTS Robotics Team (Ranked 5th in Ontario, Qualified for Worlds)
+- Volunteer, Food Banks (logistics and tech consulting)
+- Environmental Volunteer, YRES (30+ hours)
+- Competitive Swimmer and Certified Lifeguard (Bronze Cross, NLS, etc.)
+- Competitive Coder (CCC Honor Roll, CCO candidate)
+- Entrepreneurship: FBLA: 12th in Canada, Blue Ocean Competition: Finalist
+- Robotics Summer Camp Organizer and Instructor
+
+Contact Information:
+- GitHub: https://github.com/DanielGanjali
+- LinkedIn: [your LinkedIn]
+- Email: [your email]
+- Website: [your portfolio site]`
+    };
+
+    const userMessage = { role: 'user', content: input };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post('/api/chat', {
+        messages: [systemMessage, ...messages, userMessage],
+      });
+
+      const botMessage = response.data;
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <button
@@ -170,12 +259,32 @@ function FloatingChatShell() {
         <div className="mt-2 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-blue-200 dark:border-blue-900 p-4 animate-fadein flex flex-col">
           <div className="flex items-center gap-2 mb-2">
             <FaRobot className="text-blue-500" />
-            <span className="font-bold text-lg">Chat with Daniel</span>
+            <span className="font-bold text-lg">Chat with Gemini</span>
           </div>
-          <div className="flex-1 min-h-[120px] max-h-48 overflow-y-auto text-sm text-gray-700 dark:text-gray-200 mb-2 bg-gray-50 dark:bg-gray-800 rounded p-2">This is a placeholder for an interactive chatbot. {/* TODO: Integrate OpenAI API here */}</div>
-          <form className="flex gap-2">
-            <input className="flex-1 rounded border px-2 py-1 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition" placeholder="Ask me anything..." disabled />
-            <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition" disabled>Send</button>
+          <div className="flex-1 min-h-[120px] max-h-48 overflow-y-auto text-sm text-gray-700 dark:text-gray-200 mb-2 bg-gray-50 dark:bg-gray-800 rounded p-2">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`mb-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                <span className={`inline-block px-3 py-2 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>{msg.content}</span>
+              </div>
+            ))}
+            {loading && (
+              <div className="text-gray-500 text-sm">Gemini is typing...</div>
+            )}
+          </div>
+          <form className="flex gap-2" onSubmit={sendMessage}>
+            <input
+              className="flex-1 rounded border px-2 py-1 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              placeholder="Ask me anything..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+            <button
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+              type="submit"
+              disabled={loading}
+            >
+              Send
+            </button>
           </form>
         </div>
       )}
@@ -192,7 +301,7 @@ export default function Home() {
         {/* Portrait Placeholder with floating animation */}
         <div className="w-40 h-40 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-4 border-blue-400 shadow-lg mb-4 sm:mb-0 animate-float hover:scale-110 transition-transform duration-300">
           <Image
-            src="/app/portrait.png"
+            src="/portrait.png"
             alt="Portrait of Daniel Ganjali"
             width={160}
             height={160}
