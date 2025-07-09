@@ -48,90 +48,96 @@ function Typewriter({ text, speed = 30 }) {
   return <span>{displayed}</span>;
 }
 
-function StarsBackground({ totalPositions = 800, visibleCount = 32, twinkleInterval = 2000 }) {
-  const [visibleStars, setVisibleStars] = useState([]);
-  const [transitioningStars, setTransitioningStars] = useState([]);
-  const positionsRef = useRef([]);
-  const timerRef = useRef();
+function StarsBackground({ totalPositions = 1000, minActiveDuration = 3000, maxActiveDuration = 10000, minDelay = 500, maxDelay = 4000 }) {
+  const [stars, setStars] = useState([]);
+  const timeoutsRef = useRef({});
 
-  // Generate a large pool of possible star positions once
+  // Generate all star positions once
   useEffect(() => {
-    positionsRef.current = Array.from({ length: totalPositions }, (_, i) => ({
+    const newStars = Array.from({ length: totalPositions }, (_, i) => ({
       id: i,
       top: Math.random() * 100, // percent
       left: Math.random() * 100, // percent
       size: Math.random() * 2 + 2, // px
-      delay: Math.random() * twinkleInterval / 2000, // seconds, randomize delay further for staggered appearance
-      duration: Math.random() * 3 + 2, // seconds, slightly longer for smoother transitions
+      active: false,
+      opacity: 0,
     }));
-    // Pick initial visible stars
-    setVisibleStars(
-      positionsRef.current
-        .slice()
-        .sort(() => Math.random() - 0.5)
-        .slice(0, visibleCount)
-    );
-    return () => clearTimeout(timerRef.current);
-  }, [totalPositions, visibleCount]);
+    setStars(newStars);
+    return () => {
+      // Clear all timeouts on unmount
+      Object.values(timeoutsRef.current).forEach(clearTimeout);
+    };
+  }, [totalPositions]);
 
-  // Periodically pick a new random subset to show
+  // Helper to activate a star
+  const activateStar = (starIdx) => {
+    setStars((prev) => {
+      const updated = [...prev];
+      updated[starIdx] = { ...updated[starIdx], active: true };
+      return updated;
+    });
+    // Fade in
+    setTimeout(() => {
+      setStars((prev) => {
+        const updated = [...prev];
+        updated[starIdx] = { ...updated[starIdx], opacity: 1 };
+        return updated;
+      });
+    }, 10); // allow DOM update
+    // Schedule deactivation
+    const duration = Math.random() * (maxActiveDuration - minActiveDuration) + minActiveDuration;
+    timeoutsRef.current[`deactivate-${starIdx}`] = setTimeout(() => deactivateStar(starIdx), duration);
+  };
+
+  // Helper to deactivate a star
+  const deactivateStar = (starIdx) => {
+    setStars((prev) => {
+      const updated = [...prev];
+      updated[starIdx] = { ...updated[starIdx], opacity: 0 };
+      return updated;
+    });
+    // After fade out, set active to false and schedule next activation
+    setTimeout(() => {
+      setStars((prev) => {
+        const updated = [...prev];
+        updated[starIdx] = { ...updated[starIdx], active: false };
+        return updated;
+      });
+      // Schedule next activation
+      const delay = Math.random() * (maxDelay - minDelay) + minDelay;
+      timeoutsRef.current[`activate-${starIdx}`] = setTimeout(() => activateStar(starIdx), delay);
+    }, 500); // fade out duration
+  };
+
+  // On mount, randomly activate some stars
   useEffect(() => {
-    function twinkle() {
-      setTransitioningStars(visibleStars);
+    if (stars.length === 0) return;
+    // Activate a random 10% of stars initially
+    const initialActive = Math.floor(totalPositions * 0.1);
+    const indices = Array.from({ length: totalPositions }, (_, i) => i).sort(() => Math.random() - 0.5);
+    indices.slice(0, initialActive).forEach((idx) => {
+      const delay = Math.random() * (maxDelay - minDelay) + minDelay;
+      timeoutsRef.current[`activate-${idx}`] = setTimeout(() => activateStar(idx), delay);
+    });
+    return () => {
+      Object.values(timeoutsRef.current).forEach(clearTimeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stars.length]);
 
-      // Clear transitioning stars after fade-out duration
-      setTimeout(() => {
-        setTransitioningStars([]);
-      }, twinkleInterval / 2);
-
-      // Set new visible stars after fade-out duration
-      setTimeout(() => {
-        setVisibleStars(
-          positionsRef.current
-            .slice()
-            .sort(() => Math.random() - 0.5)
-            .slice(0, visibleCount)
-        );
-      }, twinkleInterval / 2);
-
-      // Schedule next twinkle
-      timerRef.current = setTimeout(twinkle, twinkleInterval);
-    }
-
-    // Start the twinkle cycle
-    timerRef.current = setTimeout(twinkle, twinkleInterval);
-
-    return () => clearTimeout(timerRef.current);
-  }, [visibleCount, twinkleInterval]);
-
-  if (visibleStars.length === 0) return null;
   return (
     <div className="fixed inset-0 z-0 pointer-events-none">
-      {transitioningStars.map(star => (
-        <div
-          key={`transitioning-${star.id}`}
-          className="bg-white rounded-full absolute opacity-40 animate-star-twinkle"
-          style={{
-            top: `${star.top}%`,
-            left: `${star.left}%`,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            animationDelay: `${star.delay}s`,
-            animationDuration: `${star.duration}s`,
-          }}
-        />
-      ))}
-      {visibleStars.map(star => (
+      {stars.map((star) => (
         <div
           key={star.id}
-          className="bg-white rounded-full absolute opacity-80 animate-star-twinkle"
+          className="bg-white rounded-full absolute transition-opacity duration-500"
           style={{
             top: `${star.top}%`,
             left: `${star.left}%`,
             width: `${star.size}px`,
             height: `${star.size}px`,
-            animationDelay: `${star.delay}s`,
-            animationDuration: `${star.duration}s`,
+            opacity: star.opacity,
+            pointerEvents: 'none',
           }}
         />
       ))}
