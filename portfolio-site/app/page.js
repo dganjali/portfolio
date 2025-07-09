@@ -191,8 +191,13 @@ export default function Home() {
       <header className="w-full max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between py-10 px-6 gap-8">
         {/* Portrait Placeholder with floating animation */}
         <div className="w-40 h-40 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center overflow-hidden border-4 border-blue-400 shadow-lg mb-4 sm:mb-0 animate-float hover:scale-110 transition-transform duration-300">
-          {/* Replace src with your portrait image */}
-          <span className="text-gray-400 text-lg select-none">Portrait<br/>Placeholder</span>
+          <Image
+            src="/app/portrait.png"
+            alt="Portrait of Daniel Ganjali"
+            width={160}
+            height={160}
+            className="rounded-full"
+          />
         </div>
         <div className="flex-1 flex flex-col items-center sm:items-start">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-2 animate-slidein">Daniel Ganjali</h1>
