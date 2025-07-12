@@ -339,8 +339,8 @@ export default function Home() {
                 <h2 className="text-2xl font-bold mb-2">Contact</h2>
                 <div className="flex flex-col gap-2 text-gray-700 dark:text-gray-200">
                   <span><span className="font-semibold">GitHub:</span> <a href="https://github.com/DanielGanjali" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200" target="_blank" rel="noopener noreferrer">https://github.com/DanielGanjali</a></span>
-                  <span><span className="font-semibold">LinkedIn:</span> <a href="https://www.linkedin.com/in/daniel-ganjali-792bab30a/" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/daniel-ganjali-792bab30a/</a></span>
-                  <span><span className="font-semibold">Email:</span> <a href="mailto:danielganjali09@gmail.com" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">danielganjali09@gmail.com</a></span>
+                  <span><span className="font-semibold">LinkedIn:</span>  <a href="https://www.linkedin.com/in/daniel-ganjali-792bab30a/" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/daniel-ganjali-792bab30a/</a></span>
+                  <span><span className="font-semibold">Email:</span> <a href="mailto:danielganjali09@gmail.com"  className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200">danielganjali09@gmail.com</a></span>
                   <span><span className="font-semibold">Website:</span> <a href="https://danielganjali.com" className="text-blue-600 hover:underline hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200" target="_blank" rel="noopener noreferrer">https://danielganjali.com</a></span>
                 </div>
               </div>
